@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS — global keyframes
+   Imported automatically via index.css.
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* ─── Page transition — subtle fade + lift on route mount ───── */
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-page-enter {
+  animation: pageEnter 0.35s ease-out;
+}
+
+/* ─── Toast slide-in — replaces tailwindcss-animate dependency ── */
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@utility animate-toast-in {
+  animation: slideInFromRight 0.3s ease-out forwards;
+}
+
+/* ─── Wizard carousel — slide-in on step change ──────────── */
+
+@keyframes wizard-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.wizard-slide-in {
+  animation: wizard-slide-in 0.25s ease-out;
+}
+
+/* ─── Electric shimmer — CTA highlight sweep ─────────────── */
+
+@keyframes electric-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* ─── Reduced motion — disable ALL animations globally ────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

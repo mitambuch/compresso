@@ -1,0 +1,168 @@
+@import 'tailwindcss';
+@import './styles/fonts.css';
+@import './styles/animations.css';
+
+/* WHY: Tailwind 4 auto-detects source files — exclude prompt/rule files that contain
+   class-like patterns (e.g. [file:line]) which trigger invalid CSS utility warnings. */
+@source not '../.claude/**';
+
+/* ═══════════════════════════════════════════════════════════════
+   THEME — design tokens → Tailwind utilities
+   bg-bg, text-fg, text-accent, font-sans, font-mono, etc.
+   ═══════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Dark mode — DEFAULT (classe2 "brutaliste suisse") */
+  --color-bg: #0a0a0a;
+  --color-fg: #f0f0f0;
+  --color-accent: #c44040;
+  --color-muted: #8a8a8a;
+  --color-surface: #141414;
+  --color-border: #262626;
+  --color-on-accent: #ffffff;
+
+  /* Semantic status colors — fluorescent */
+  --color-success: #6aff8a;
+  --color-warning: #ffd60a;
+  --color-danger: #dc2626;
+  --color-info: #52b0ff;
+
+  /* Text-safe variants — meet WCAG AA (4.5:1) on dark bg #0a0a0a */
+  --color-success-text: #6aff8a;
+  --color-warning-text: #ffd60a;
+  --color-danger-text: #ff6b6b;
+  --color-info-text: #52b0ff;
+  --color-accent-text: #e05a5a;
+
+  --font-family-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Light mode override (warm concrete gray — classe2 style) */
+[data-theme='light'] {
+  --color-bg: #b0b0a8;
+  --color-fg: #1a1a1a;
+  --color-accent: #c44040;
+  --color-muted: #353530;
+  --color-surface: #a4a49c;
+  --color-border: #96968e;
+
+  --color-success: #00c853;
+  --color-warning: #e6a800;
+  --color-danger: #b91c1c;
+  --color-info: #1e88e5;
+
+  /* Text-safe variants — meet WCAG AA (4.5:1) on light bg and composites */
+  --color-success-text: #004d1f;
+  --color-warning-text: #4d3800;
+  --color-info-text: #0a3d6a;
+  --color-danger-text: #7f1111;
+  --color-accent-text: #751e1e;
+}
+
+/* ─── Custom scrollbar — thin coral accent ────────────────── */
+
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+html {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-accent) 50%, transparent) transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   APP TOKENS — CSS variables for direct use (not Tailwind utils)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Duration tokens — change here, propagates via @utility below */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+  --duration-cinematic: 700ms;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 300ms ease;
+  --transition-slow: 600ms ease;
+
+  --z-below: -1;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-cursor: 9999;
+}
+
+/* ─── Transition presets ─────────────────────────────────── */
+.transition-theme {
+  transition:
+    background-color 1.5s ease,
+    color 1.5s ease,
+    border-color 1.5s ease;
+}
+.transition-smooth {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Global styles ────────────────────────────────────────── */
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* ─── Custom utilities ─────────────────────────────────────── */
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@utility animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ─── Duration utilities — Tailwind 4 doesn't auto-generate from :root ── */
+@utility duration-fast {
+  --tw-duration: var(--duration-fast);
+  transition-duration: var(--duration-fast);
+}
+@utility duration-base {
+  --tw-duration: var(--duration-base);
+  transition-duration: var(--duration-base);
+}
+@utility duration-slow {
+  --tw-duration: var(--duration-slow);
+  transition-duration: var(--duration-slow);
+}
+@utility duration-cinematic {
+  --tw-duration: var(--duration-cinematic);
+  transition-duration: var(--duration-cinematic);
+}

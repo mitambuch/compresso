@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+
+# Env (JAMAIS dans git)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor (personal workspace files only)
+.vscode/*.code-workspace
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel / deploy
+.vercel
+
+# TS cache
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Lighthouse CI
+.lighthouseci/
+
+# Bundle analysis
+stats.html
+
+# Crypto keys (never commit)
+*.pem
+*.key
+*.p12
+
+# Claude Code (ignore local settings, keep shared commands, rules, agents, and decisions)
+.claude/*
+!.claude/commands/
+!.claude/rules/
+!.claude/agents/
+!.claude/decisions.md

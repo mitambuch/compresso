@@ -1,0 +1,386 @@
+#!/usr/bin/env node
+
+/* ═══════════════════════════════════════════════════════════════
+   DONE — structural coherence check
+   Verifies project consistency after a work session.
+
+   Usage: pnpm done
+   ═══════════════════════════════════════════════════════════════ */
+
+import { execSync } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { extname, join, resolve } from 'node:path';
+
+import { ALIASES, PATHS } from './utils/paths.js';
+
+const root = PATHS.root;
+
+// WHY: the base repo itself has template artifacts and initialized: false — that's expected, not a warning
+const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf-8'));
+const isBaseProject = pkg._baseProject === true;
+
+// WHY: Node-native file scanner replaces grep for Windows compatibility (grep not available on vanilla Windows)
+function scanFiles(dir, pattern, extensions = ['.ts', '.tsx']) {
+  const results = [];
+  function walk(d) {
+    for (const entry of readdirSync(d)) {
+      const full = join(d, entry);
+      if (entry === 'node_modules' || entry === 'dist') continue;
+      const stat = statSync(full);
+      if (stat.isDirectory()) walk(full);
+      else if (extensions.includes(extname(entry))) {
+        const content = readFileSync(full, 'utf-8');
+        let match;
+        while ((match = pattern.exec(content)) !== null) results.push(match[0]);
+      }
+    }
+  }
+  walk(dir);
+  return results;
+}
+
+const green = (s) => `\x1b[32m${s}\x1b[0m`;
+const yellow = (s) => `\x1b[33m${s}\x1b[0m`;
+const red = (s) => `\x1b[31m${s}\x1b[0m`;
+const bold = (s) => `\x1b[1m${s}\x1b[0m`;
+const dim = (s) => `\x1b[2m${s}\x1b[0m`;
+
+let warnings = 0;
+let errors = 0;
+
+function pass(msg) {
+  console.log(`  ${green('✓')} ${msg}`);
+}
+
+function warn(msg) {
+  warnings++;
+  console.log(`  ${yellow('⚠')} ${msg}`);
+}
+
+function fail(msg) {
+  errors++;
+  console.log(`  ${red('✗')} ${msg}`);
+}
+
+console.log(`\n  ${bold('done')} — structural coherence check\n`);
+
+// ─── 1. Routes ↔ Pages ──────────────────────────────────────
+const routesPath = PATHS.routes;
+const pagesDir = PATHS.pages;
+
+if (existsSync(routesPath) && existsSync(pagesDir)) {
+  const routesContent = readFileSync(routesPath, 'utf-8');
+  // Extract route keys (skip commented lines and NOT_FOUND)
+  const routeKeys = [];
+  for (const line of routesContent.split('\n')) {
+    const match = line.match(/^\s+(\w+):\s*'[^']+'/);
+    if (match && !line.trim().startsWith('//') && match[1] !== 'NOT_FOUND') {
+      routeKeys.push(match[1]);
+    }
+  }
+
+  const pageFiles = readdirSync(pagesDir)
+    .filter((f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx') && f !== 'index.ts' && f !== 'NotFound.tsx');
+
+  let routesMissing = false;
+  for (const key of routeKeys) {
+    // Convert route key to expected page name (HOME → Home, PLAYGROUND → Playground)
+    const expectedPage = key.charAt(0) + key.slice(1).toLowerCase();
+    const hasPage = pageFiles.some(
+      (f) => f.replace('.tsx', '').toLowerCase() === expectedPage.toLowerCase(),
+    );
+    if (!hasPage) {
+      warn(`Route ${key} has no matching page file in src/pages/`);
+      routesMissing = true;
+    }
+  }
+  if (!routesMissing) {
+    pass(`All routes have matching page files`);
+  }
+} else {
+  warn('Could not check routes (routes.ts or pages/ not found)');
+}
+
+// ─── 2. Pages → Tests ───────────────────────────────────────
+if (existsSync(pagesDir)) {
+  const pageFiles = readdirSync(pagesDir).filter(
+    (f) => f.endsWith('.tsx') && !f.endsWith('.test.tsx') && f !== 'index.ts',
+  );
+  // Pages may have tests in __tests__/ subdirectory or as sibling .test.tsx files
+  const pagesTestDir = resolve(pagesDir, '__tests__');
+  let pagesWithTests = 0;
+  const pagesWithoutTests = [];
+
+  for (const page of pageFiles) {
+    const baseName = page.replace('.tsx', '');
+    const testAsSibling = resolve(pagesDir, `${baseName}.test.tsx`);
+    const testInDir = pagesTestDir
+      ? resolve(pagesTestDir, `${baseName}.test.tsx`)
+      : null;
+
+    if (
+      existsSync(testAsSibling) ||
+      (testInDir && existsSync(testInDir))
+    ) {
+      pagesWithTests++;
+    } else {
+      pagesWithoutTests.push(baseName);
+    }
+  }
+
+  if (pagesWithoutTests.length === 0) {
+    pass(`All pages have tests (${pagesWithTests}/${pageFiles.length})`);
+  } else {
+    warn(
+      `Pages without tests: ${pagesWithoutTests.join(', ')} (${pagesWithTests}/${pageFiles.length})`,
+    );
+  }
+}
+
+// ─── 3. UI Components → Tests ───────────────────────────────
+const uiDir = PATHS.componentsUI;
+const uiTestDir = resolve(uiDir, '__tests__');
+
+if (existsSync(uiDir)) {
+  const uiFiles = readdirSync(uiDir).filter(
+    (f) => f.endsWith('.tsx') && f !== 'index.ts',
+  );
+  let uiWithTests = 0;
+  const uiWithoutTests = [];
+
+  for (const comp of uiFiles) {
+    const baseName = comp.replace('.tsx', '');
+    const testPath = resolve(uiTestDir, `${baseName}.test.tsx`);
+    const testAsSibling = resolve(uiDir, `${baseName}.test.tsx`);
+
+    if (existsSync(testPath) || existsSync(testAsSibling)) {
+      uiWithTests++;
+    } else {
+      uiWithoutTests.push(baseName);
+    }
+  }
+
+  if (uiWithoutTests.length === 0) {
+    pass(`All UI components have tests (${uiWithTests}/${uiFiles.length})`);
+  } else {
+    warn(
+      `UI components without tests: ${uiWithoutTests.join(', ')} (${uiWithTests}/${uiFiles.length})`,
+    );
+  }
+}
+
+// ─── 4. Env vars declared in env.ts ─────────────────────────
+const envTsPath = PATHS.envConfig;
+
+if (existsSync(envTsPath)) {
+  const envTsContent = readFileSync(envTsPath, 'utf-8');
+
+  // Find all VITE_* usages in src/
+  try {
+    const matches = scanFiles(PATHS.src, /import\.meta\.env\.(VITE_[A-Z_]+)/g);
+    const envVars = [
+      ...new Set(matches.map((m) => m.replace('import.meta.env.', ''))),
+    ];
+
+    let undeclared = false;
+    for (const v of envVars) {
+      if (!envTsContent.includes(v)) {
+        warn(`Env var ${v} used in src/ but not declared in src/config/env.ts`);
+        undeclared = true;
+      }
+    }
+    if (!undeclared && envVars.length > 0) {
+      pass('All env vars declared in env.ts');
+    }
+  } catch {
+    warn('Could not scan for env var usage');
+  }
+}
+
+// ─── 5. No .tsx files directly in src/ ──────────────────────
+const srcDir = PATHS.src;
+const topLevelTsx = readdirSync(srcDir).filter((f) => f.endsWith('.tsx'));
+
+if (topLevelTsx.length === 0) {
+  pass('No files outside allowed directories');
+} else {
+  for (const file of topLevelTsx) {
+    // main.tsx is an exception (Vite entry point)
+    if (file === 'main.tsx') continue;
+    warn(`src/${file} should be in a subdirectory (pages/, components/, etc.)`);
+  }
+  if (topLevelTsx.every((f) => f === 'main.tsx')) {
+    pass('No files outside allowed directories');
+  }
+}
+
+// ─── 6. Orphan imports ──────────────────────────────────────
+try {
+  const aliasMatches = scanFiles(PATHS.src, /from ['"](@[^'"]+)['"]/g);
+  const aliasMap = ALIASES;
+
+  const imports = [
+    ...new Set(
+      aliasMatches.map((m) => m.replace(/from ['"]/, '').replace(/['"]/, '')),
+    ),
+  ];
+
+  // WHY: sort aliases by length descending so @components matches before @
+  const sortedAliases = Object.keys(aliasMap).sort((a, b) => b.length - a.length);
+
+  let orphanCount = 0;
+  for (const imp of imports) {
+    // Skip external scoped packages (e.g. @testing-library/react, @tanstack/query)
+    const alias = sortedAliases.find((a) => imp === a || imp.startsWith(`${a}/`));
+    if (!alias) continue;
+
+    const relativePath = imp.replace(alias, aliasMap[alias]);
+    const candidates = [
+      resolve(root, `${relativePath}.ts`),
+      resolve(root, `${relativePath}.tsx`),
+      resolve(root, `${relativePath}/index.ts`),
+      resolve(root, `${relativePath}/index.tsx`),
+    ];
+
+    if (!candidates.some((c) => existsSync(c))) {
+      warn(`Orphan import: ${imp} does not resolve to an existing file`);
+      orphanCount++;
+    }
+  }
+
+  if (orphanCount === 0) {
+    pass('No orphan imports detected');
+  }
+} catch {
+  warn('Could not scan for orphan imports');
+}
+
+// ─── 7. No empty directories in src/ ────────────────────────
+function isEmptyDir(dirPath) {
+  if (!existsSync(dirPath)) return false;
+  const stat = statSync(dirPath);
+  if (!stat.isDirectory()) return false;
+  const entries = readdirSync(dirPath);
+  return entries.length === 0 || entries.every((e) => isEmptyDir(join(dirPath, e)));
+}
+
+const srcSubDirs = readdirSync(PATHS.src).filter((f) => {
+  const full = join(PATHS.src, f);
+  return statSync(full).isDirectory() && f !== 'test' && f !== '__tests__';
+});
+
+let emptyDirFound = false;
+for (const dir of srcSubDirs) {
+  const full = join(PATHS.src, dir);
+  if (isEmptyDir(full)) {
+    warn(`src/${dir}/ is empty — remove it or populate it`);
+    emptyDirFound = true;
+  }
+}
+if (!emptyDirFound) {
+  pass('No empty directories in src/');
+}
+
+// ─── 8. README component count matches reality ─────────────
+const readmePath = resolve(root, 'README.md');
+if (existsSync(readmePath) && existsSync(PATHS.componentsUI)) {
+  const readme = readFileSync(readmePath, 'utf-8');
+  const countMatch = readme.match(/(\d+) accessible (?:UI )?components/);
+  if (countMatch) {
+    const claimed = parseInt(countMatch[1]);
+    const actual = readdirSync(PATHS.componentsUI).filter(
+      (f) => f.endsWith('.tsx') && f !== 'index.ts',
+    ).length;
+    if (claimed === actual) {
+      pass(`README component count matches (${actual})`);
+    } else {
+      warn(`README claims ${claimed} components but src/components/ui/ has ${actual}`);
+    }
+  }
+}
+
+// ─── 9. Template artifacts ───────────────────────────────────
+// WHY: After pnpm setup, no template-specific references should remain in project files
+// Skip when running in the base project itself — template refs are expected there
+if (isBaseProject) {
+  pass('Base project — template artifact check skipped');
+} else {
+  const templatePattern = /steaksoap|project-base/i;
+  let artifactsFound = false;
+
+  // Check key files that setup.js should have cleaned
+  for (const fileName of ['README.md', 'HANDOFF.md', 'index.html']) {
+    const filePath = resolve(root, fileName);
+    if (existsSync(filePath)) {
+      const content = readFileSync(filePath, 'utf-8');
+      if (templatePattern.test(content)) {
+        warn(`Template artifact in ${fileName} — run pnpm setup to clean`);
+        artifactsFound = true;
+      }
+    }
+  }
+
+  // Scan src/ for template references (using existing scanFiles helper)
+  const srcMatches = scanFiles(PATHS.src, /steaksoap|project-base/gi);
+  if (srcMatches.length > 0) {
+    warn(`Template references found in src/ (${srcMatches.length} matches)`);
+    artifactsFound = true;
+  }
+
+  // Check for leftover template image
+  if (existsSync(resolve(root, 'public/images/steaksoap.png'))) {
+    warn('Template image public/images/steaksoap.png still exists');
+    artifactsFound = true;
+  }
+
+  if (!artifactsFound) {
+    pass('No template artifacts remaining');
+  }
+}
+
+// ─── 10. Initialization check ────────────────────────────────
+if (isBaseProject) {
+  pass('Base project — initialization check skipped');
+} else {
+  const siteTsPath = resolve(root, 'src/config/site.ts');
+  if (existsSync(siteTsPath)) {
+    const siteTsContent = readFileSync(siteTsPath, 'utf-8');
+    if (siteTsContent.includes('initialized: false')) {
+      warn('Project not initialized — run /init to customize');
+    } else if (siteTsContent.includes('initialized: true')) {
+      pass('Project initialized');
+    }
+  }
+}
+
+// ─── 11. pnpm validate ──────────────────────────────────────
+// WHY: skip when called from CI or release (validate already runs separately there)
+const skipValidate = process.argv.includes('--quick');
+
+if (skipValidate) {
+  pass('pnpm validate skipped (--quick mode)');
+} else {
+  console.log(`\n  ${dim('Running pnpm validate...')}\n`);
+  try {
+    execSync('pnpm validate', { cwd: root, stdio: 'inherit' });
+    console.log('');
+    pass('pnpm validate passes');
+  } catch {
+    console.log('');
+    fail('pnpm validate failed — fix errors above');
+  }
+}
+
+// ─── Summary ─────────────────────────────────────────────────
+console.log('');
+if (errors > 0) {
+  console.log(
+    `  ${red(`Done! ${errors} error(s) and ${warnings} warning(s) found.`)}`,
+  );
+  process.exit(1);
+} else if (warnings > 0) {
+  console.log(`  ${yellow(`Done! ${warnings} warning(s) found.`)}`);
+} else {
+  console.log(`  ${green('Done! All checks passed.')}`);
+}
+console.log('');

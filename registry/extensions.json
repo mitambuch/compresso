@@ -1,0 +1,374 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Curated extension registry",
+  "extensions": [
+    {
+      "id": "three-js",
+      "name": "Three.js + React Three Fiber",
+      "description": "3D rendering engine with React bindings and helper components.",
+      "tags": ["3d", "webgl", "three", "rendering", "graphics", "animation"],
+      "category": "frontend",
+      "npm_packages": ["three", "@react-three/fiber", "@react-three/drei"],
+      "setup_instructions": [
+        "Install packages: pnpm add three @react-three/fiber @react-three/drei",
+        "Add type definitions: pnpm add -D @types/three",
+        "Create src/components/ui/Canvas3D.tsx wrapper component",
+        "Add a basic scene example in src/features/ if needed"
+      ],
+      "references": [
+        "https://docs.pmnd.rs/react-three-fiber",
+        "https://github.com/pmndrs/drei"
+      ]
+    },
+    {
+      "id": "stripe-payments",
+      "name": "Stripe Payments",
+      "description": "Payment processing with Stripe Elements and checkout integration.",
+      "tags": ["payments", "stripe", "checkout", "billing", "e-commerce"],
+      "category": "backend",
+      "npm_packages": ["@stripe/stripe-js", "@stripe/react-stripe-js"],
+      "setup_instructions": [
+        "Install packages: pnpm add @stripe/stripe-js @stripe/react-stripe-js",
+        "Add VITE_STRIPE_PUBLISHABLE_KEY to .env.example and src/config/env.ts",
+        "Create src/lib/stripe.ts with loadStripe() initialization",
+        "Wrap payment pages with <Elements> provider",
+        "User action: create a Stripe account at stripe.com and copy the publishable key"
+      ],
+      "references": [
+        "https://docs.stripe.com/stripe-js/react",
+        "https://docs.stripe.com/payments/quickstart"
+      ]
+    },
+    {
+      "id": "auth-clerk",
+      "name": "Clerk Authentication",
+      "description": "Full authentication system with login, signup, OAuth, and user management.",
+      "tags": ["auth", "authentication", "login", "signup", "oauth", "clerk", "users"],
+      "category": "backend",
+      "npm_packages": ["@clerk/clerk-react"],
+      "setup_instructions": [
+        "Install package: pnpm add @clerk/clerk-react",
+        "Add VITE_CLERK_PUBLISHABLE_KEY to .env.example and src/config/env.ts",
+        "Wrap App with <ClerkProvider> in src/app/providers.tsx",
+        "Create src/features/auth/ with SignIn, SignUp, and UserButton components",
+        "Add protected route wrapper using useAuth() hook",
+        "User action: create a Clerk project at clerk.com and copy the publishable key"
+      ],
+      "references": [
+        "https://clerk.com/docs/quickstarts/react",
+        "https://clerk.com/docs/references/react/use-auth"
+      ]
+    },
+    {
+      "id": "tanstack-query",
+      "name": "TanStack Query",
+      "description": "Powerful data fetching and caching with automatic background refetching.",
+      "tags": ["data", "fetching", "api", "cache", "query", "tanstack", "react-query"],
+      "category": "data",
+      "npm_packages": ["@tanstack/react-query", "@tanstack/react-query-devtools"],
+      "setup_instructions": [
+        "Install packages: pnpm add @tanstack/react-query @tanstack/react-query-devtools",
+        "Create src/lib/query-client.ts with default options",
+        "Add <QueryClientProvider> to src/app/providers.tsx",
+        "Add <ReactQueryDevtools> in development mode",
+        "Follow patterns in .claude/rules/api.md for hook structure"
+      ],
+      "references": [
+        "https://tanstack.com/query/latest/docs/framework/react/overview",
+        "https://tanstack.com/query/latest/docs/framework/react/quick-start"
+      ]
+    },
+    {
+      "id": "zod",
+      "name": "Zod",
+      "description": "TypeScript-first schema validation for API responses, forms, and environment variables.",
+      "tags": ["validation", "schema", "zod", "types", "parsing", "forms"],
+      "category": "data",
+      "npm_packages": ["zod"],
+      "setup_instructions": [
+        "Install package: pnpm add zod",
+        "Create src/lib/schemas/ directory for shared schemas",
+        "Use z.infer<typeof schema> for TypeScript type derivation",
+        "Validate API responses with schema.parse() in fetch hooks"
+      ],
+      "references": [
+        "https://zod.dev",
+        "https://github.com/colinhacks/zod"
+      ]
+    },
+    {
+      "id": "framer-motion",
+      "name": "Motion (Framer Motion)",
+      "description": "Production-ready animation library for React with gesture support.",
+      "tags": ["animation", "motion", "framer", "transitions", "gestures", "scroll"],
+      "category": "frontend",
+      "npm_packages": ["motion"],
+      "setup_instructions": [
+        "Install package: pnpm add motion",
+        "Use <motion.div> for animated elements",
+        "Create src/hooks/useAnimationConfig.ts for shared animation presets",
+        "Use AnimatePresence for exit animations on route changes"
+      ],
+      "references": [
+        "https://motion.dev/docs/react-quick-start",
+        "https://motion.dev/docs/react-animation"
+      ]
+    },
+    {
+      "id": "i18n",
+      "name": "react-i18next",
+      "description": "Internationalization framework with browser language detection and namespace support.",
+      "tags": ["i18n", "internationalization", "translation", "language", "locale", "multilingual"],
+      "category": "frontend",
+      "npm_packages": ["react-i18next", "i18next", "i18next-browser-languagedetector"],
+      "setup_instructions": [
+        "Install packages: pnpm add react-i18next i18next i18next-browser-languagedetector",
+        "Create src/lib/i18n.ts with i18next configuration",
+        "Create src/locales/en.json and src/locales/fr.json translation files",
+        "Import i18n config in src/main.tsx",
+        "Use useTranslation() hook in components: const { t } = useTranslation()"
+      ],
+      "references": [
+        "https://react.i18next.com/getting-started",
+        "https://www.i18next.com/overview/configuration-options"
+      ]
+    },
+    {
+      "id": "mdx-blog",
+      "name": "MDX Blog",
+      "description": "Write blog posts in MDX with frontmatter support and Vite integration.",
+      "tags": ["blog", "mdx", "markdown", "content", "cms", "writing", "posts"],
+      "category": "content",
+      "npm_packages": ["@mdx-js/rollup", "@mdx-js/react", "gray-matter"],
+      "setup_instructions": [
+        "Install packages: pnpm add @mdx-js/rollup @mdx-js/react gray-matter",
+        "Add MDX plugin to vite.config.ts",
+        "Create src/content/posts/ directory for MDX files",
+        "Create src/features/blog/ with PostList and PostDetail components",
+        "Add /blog and /blog/:slug routes"
+      ],
+      "references": [
+        "https://mdxjs.com/docs/getting-started/",
+        "https://mdxjs.com/packages/rollup/"
+      ]
+    },
+    {
+      "id": "playwright-e2e",
+      "name": "Playwright E2E Testing",
+      "description": "End-to-end browser testing with auto-waiting and cross-browser support.",
+      "tags": ["e2e", "testing", "playwright", "browser", "integration", "end-to-end"],
+      "category": "quality",
+      "npm_packages": ["@playwright/test"],
+      "setup_instructions": [
+        "Install package: pnpm add -D @playwright/test",
+        "Run: npx playwright install chromium",
+        "Create playwright.config.ts at project root",
+        "Create e2e/ directory for test files",
+        "Add scripts to package.json: test:e2e and test:e2e:ui",
+        "Add e2e example: e2e/home.spec.ts testing the landing page"
+      ],
+      "references": [
+        "https://playwright.dev/docs/intro",
+        "https://playwright.dev/docs/test-configuration"
+      ]
+    },
+    {
+      "id": "storybook",
+      "name": "Storybook",
+      "description": "Component development environment with isolated rendering and visual testing.",
+      "tags": ["storybook", "components", "visual", "design-system", "documentation", "ui"],
+      "category": "quality",
+      "npm_packages": ["storybook", "@storybook/react-vite"],
+      "setup_instructions": [
+        "Install packages: pnpm add -D storybook @storybook/react-vite",
+        "Run: npx storybook init --builder vite (or configure manually)",
+        "Create .storybook/main.ts and .storybook/preview.ts",
+        "Import src/index.css in preview.ts for Tailwind support",
+        "Add scripts to package.json: storybook and build-storybook",
+        "Create example story: src/components/ui/Button.stories.tsx"
+      ],
+      "references": [
+        "https://storybook.js.org/docs/get-started/install",
+        "https://storybook.js.org/docs/get-started/frameworks/react-vite"
+      ]
+    },
+    {
+      "id": "zustand",
+      "name": "Zustand",
+      "description": "Minimal state management with hooks-based API and no boilerplate.",
+      "tags": ["state", "store", "zustand", "global-state", "state-management"],
+      "category": "data",
+      "npm_packages": ["zustand"],
+      "setup_instructions": [
+        "Install package: pnpm add zustand",
+        "Create stores in src/lib/stores/ (e.g., src/lib/stores/useAppStore.ts)",
+        "Pattern: export const useAppStore = create<AppState>()((set) => ({...}))",
+        "Use selectors for performance: const count = useAppStore((s) => s.count)"
+      ],
+      "references": [
+        "https://zustand.docs.pmnd.rs/getting-started/introduction",
+        "https://github.com/pmndrs/zustand"
+      ]
+    },
+    {
+      "id": "resend-email",
+      "name": "Resend Email",
+      "description": "Modern email API for sending transactional emails. Free tier: 100 emails/day.",
+      "tags": ["email", "resend", "contact", "form", "notifications", "transactional"],
+      "category": "backend",
+      "npm_packages": ["resend"],
+      "setup_instructions": [
+        "Install package: pnpm add resend",
+        "Add RESEND_API_KEY to .env.example (server-side only, NOT VITE_ prefixed)",
+        "Create API route or serverless function for sending emails",
+        "Create src/features/contact/ with ContactForm component",
+        "User action: create a Resend account at resend.com and copy the API key"
+      ],
+      "references": [
+        "https://resend.com/docs/introduction",
+        "https://resend.com/docs/send-with-react"
+      ]
+    },
+    {
+      "id": "react-hook-form",
+      "name": "React Hook Form + Zod",
+      "description": "Performant form handling with schema validation. Minimal re-renders, built-in error handling, works with Zod for type-safe validation.",
+      "tags": ["forms", "validation", "input", "contact", "signup", "form", "contact-form", "register"],
+      "category": "forms",
+      "npm_packages": ["react-hook-form", "zod", "@hookform/resolvers"],
+      "setup_instructions": [
+        "Install packages: pnpm add react-hook-form zod @hookform/resolvers",
+        "Create a form hook pattern with Zod schema validation",
+        "Add to api.md rule"
+      ],
+      "references": [
+        "https://react-hook-form.com",
+        "https://zod.dev"
+      ]
+    },
+    {
+      "id": "date-fns",
+      "name": "date-fns",
+      "description": "Lightweight, modular date utility library. Format dates, calculate time differences, parse strings. Tree-shakable.",
+      "tags": ["dates", "time", "formatting", "relative-time", "calendar", "date", "format-date"],
+      "category": "utilities",
+      "npm_packages": ["date-fns"],
+      "setup_instructions": [
+        "Install package: pnpm add date-fns",
+        "Use named imports for tree-shaking: import { format, formatDistanceToNow } from 'date-fns'"
+      ],
+      "references": [
+        "https://date-fns.org"
+      ]
+    },
+    {
+      "id": "analytics-plausible",
+      "name": "Plausible Analytics",
+      "description": "Privacy-friendly web analytics. No cookies, GDPR compliant by default. Lightweight script (<1kb). Free for self-hosted, paid for cloud.",
+      "tags": ["analytics", "tracking", "stats", "privacy", "gdpr", "visitors", "traffic"],
+      "category": "analytics",
+      "npm_packages": ["plausible-tracker"],
+      "setup_instructions": [
+        "Install package: pnpm add plausible-tracker",
+        "Create analytics hook",
+        "Add script to index.html",
+        "User action: create a Plausible account at plausible.io and configure your domain"
+      ],
+      "references": [
+        "https://plausible.io/docs"
+      ]
+    },
+    {
+      "id": "analytics-umami",
+      "name": "Umami Analytics",
+      "description": "Open-source, self-hosted web analytics alternative. Privacy-focused, no cookies. Can be self-hosted for free or use Umami Cloud.",
+      "tags": ["analytics", "tracking", "stats", "privacy", "self-hosted", "visitors", "traffic"],
+      "category": "analytics",
+      "npm_packages": [],
+      "setup_instructions": [
+        "Add Umami tracking script to index.html — no npm package needed",
+        "User action: set up an Umami instance at cloud.umami.is or self-host"
+      ],
+      "references": [
+        "https://umami.is/docs"
+      ]
+    },
+    {
+      "id": "og-images",
+      "name": "Open Graph Images",
+      "description": "Generate dynamic Open Graph images for social media sharing. Creates preview images with project title, description, and branding.",
+      "tags": ["seo", "social", "opengraph", "twitter", "meta", "sharing", "og-image", "preview"],
+      "category": "seo",
+      "npm_packages": ["@vercel/og"],
+      "setup_instructions": [
+        "Install package: pnpm add @vercel/og",
+        "Create an API route that generates images with project branding",
+        "Update SeoHead to include og:image meta tag pointing to the route"
+      ],
+      "references": [
+        "https://vercel.com/docs/functions/og-image-generation"
+      ]
+    },
+    {
+      "id": "seo-structured-data",
+      "name": "Structured Data / JSON-LD",
+      "description": "Add structured data (schema.org) to pages for rich search results. Organization, website, breadcrumb, FAQ, and article schemas.",
+      "tags": ["seo", "schema", "json-ld", "google", "rich-results", "structured-data", "search"],
+      "category": "seo",
+      "npm_packages": ["schema-dts"],
+      "setup_instructions": [
+        "Install package: pnpm add schema-dts",
+        "Create a JsonLd component that injects structured data into page head",
+        "Add Organization and WebSite schema to the root layout"
+      ],
+      "references": [
+        "https://developers.google.com/search/docs/appearance/structured-data",
+        "https://schema.org"
+      ]
+    },
+    {
+      "id": "cms-sanity",
+      "name": "Sanity CMS",
+      "description": "Headless CMS for client-editable content. Hosted Studio for editing, GROQ queries for fetching. Perfect for vitrine/showcase sites where clients need to update text, images, and pages without touching code.",
+      "tags": ["cms", "sanity", "content", "headless", "editing", "client", "vitrine"],
+      "category": "content",
+      "npm_packages": ["@sanity/client", "@sanity/image-url", "groq"],
+      "dev_packages": ["@sanity/cli"],
+      "setup_instructions": [
+        "Install packages: pnpm add @sanity/client @sanity/image-url groq && pnpm add -D @sanity/cli",
+        "Add env vars to .env.example and src/config/env.ts: VITE_SANITY_PROJECT_ID (required), VITE_SANITY_DATASET (default: 'production')",
+        "Create src/lib/sanity/client.ts — Sanity client with projectId, dataset, apiVersion, useCdn: true",
+        "Create src/lib/sanity/queries.ts — GROQ queries for pages, services, team, etc.",
+        "Create src/lib/sanity/image.ts — image URL builder using @sanity/image-url",
+        "Create src/hooks/useSanityQuery.ts — custom hook for fetching with loading/error states and AbortController",
+        "User action: create a Sanity account at sanity.io, run 'npx sanity init' to create project + dataset",
+        "User action: define schemas in Sanity Studio (page, service, teamMember, siteSettings, etc.)",
+        "User action: deploy Studio with 'npx sanity deploy' — clients access it at your-project.sanity.studio"
+      ],
+      "references": [
+        "https://www.sanity.io/docs/connect-your-content-to-your-front-end",
+        "https://www.sanity.io/docs/js-client",
+        "https://www.sanity.io/docs/image-url"
+      ]
+    },
+    {
+      "id": "prerender-ssg",
+      "name": "Pre-rendering / SSG",
+      "description": "Generate static HTML at build time for all routes. Improves SEO for crawlers that don't execute JavaScript. Optional — modern Google Bot handles SPAs fine, but useful for maximum SEO coverage.",
+      "tags": ["seo", "pre-rendering", "ssg", "static", "html", "crawlers"],
+      "category": "seo",
+      "npm_packages": ["vite-react-ssg"],
+      "setup_instructions": [
+        "Install package: pnpm add vite-react-ssg",
+        "Replace createBrowserRouter with ViteReactSSG in src/main.tsx",
+        "Export routes from src/app/routes/index.tsx for static generation",
+        "Update package.json build script to use vite-react-ssg build",
+        "Pre-rendered HTML files are generated in dist/ for each route",
+        "Deploy dist/ to any static host — same as before, but now with full HTML"
+      ],
+      "references": [
+        "https://github.com/Daydreamer-riri/vite-react-ssg"
+      ]
+    }
+  ]
+}

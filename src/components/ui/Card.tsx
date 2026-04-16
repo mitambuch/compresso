@@ -1,0 +1,43 @@
+// ═══════════════════════════════════════════════════
+// Card — content container with border
+//
+// WHAT: Renders a bordered container with optional padding
+// WHEN: Use to group related content visually
+// CHANGE COLORS: Edit design tokens in src/index.css
+// ═══════════════════════════════════════════════════
+
+import { cn } from '@utils/cn';
+import type { ReactNode } from 'react';
+
+interface CardProps {
+  className?: string;
+  padding?: 'sm' | 'md' | 'lg' | 'none';
+  hover?: boolean;
+  children: ReactNode;
+}
+
+const paddingStyles: Record<NonNullable<CardProps['padding']>, string> = {
+  sm: 'p-3',
+  md: 'p-5',
+  lg: 'p-8',
+  none: 'p-0',
+};
+
+// WHY: No ARIA role — Card is a non-interactive container. Adding role="article" would be
+// semantically incorrect per WAI-ARIA. If Card becomes clickable, add role="button" + tabIndex.
+/** Container card with border, smooth transitions, and optional hover scale. */
+export const Card = ({ className, padding = 'md', hover = false, children }: CardProps) => {
+  return (
+    <div
+      className={cn(
+        'border-border bg-surface/80 duration-slow rounded-lg border backdrop-blur-sm transition-[border-color,background-color,transform,box-shadow]',
+        hover &&
+          'hover:border-accent/20 hover:scale-[1.02] hover:shadow-[0_0_30px_color-mix(in_srgb,var(--color-accent)_3%,transparent)]',
+        paddingStyles[padding],
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+};

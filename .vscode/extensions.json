@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "ms-vscode.vscode-typescript-next",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "vivaxy.vscode-conventional-commits",
+    "usernamehw.errorlens",
+    "christian-kohler.path-intellisense",
+    "mikestead.dotenv",
+    "csstools.postcss",
+    "formulahendry.auto-rename-tag",
+    "github.vscode-github-actions"
+  ]
+}

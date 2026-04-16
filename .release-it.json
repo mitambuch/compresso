@@ -1,0 +1,49 @@
+{
+  "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+
+  "git": {
+    "commitMessage": "chore(release): v${version}",
+    "tagName": "v${version}",
+    "tagAnnotation": "release v${version}",
+    "requireBranch": "main",
+    "requireCleanWorkingDir": true
+  },
+
+  "github": {
+    "release": true,
+    "releaseName": "v${version}",
+    "draft": false,
+    "preRelease": false,
+    "tokenRef": "GITHUB_TOKEN"
+  },
+
+  "npm": {
+    "publish": false
+  },
+
+  "hooks": {
+    "before:init": ["node scripts/done.js --quick", "pnpm validate"],
+    "before:release": ["node scripts/fix-changelog.js"]
+  },
+
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          { "type": "feat",     "section": "✨ Features"       },
+          { "type": "fix",      "section": "🐛 Bug Fixes"      },
+          { "type": "perf",     "section": "⚡ Performance"    },
+          { "type": "refactor", "section": "♻️  Refactoring"   },
+          { "type": "docs",     "section": "📚 Documentation"  },
+          { "type": "chore",    "section": "🔧 Chores"          },
+          { "type": "style",    "section": "🎨 Styles"          },
+          { "type": "test",     "section": "✅ Tests"            },
+          { "type": "merge",    "hidden": true }
+        ]
+      },
+      "infile": "CHANGELOG.md",
+      "header": ""
+    }
+  }
+}

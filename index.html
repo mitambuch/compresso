@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+
+    <!-- SEO defaults — overridden by <SeoHead /> in each page -->
+    <title>Project</title>
+    <meta name="description" content="" />
+
+    <!-- Fonts loaded via src/styles/fonts.css (single source of truth) -->
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Prevent flash of wrong theme (FOUC) -->
+    <!-- SYNC: key must match THEME_STORAGE_KEY in src/context/ThemeContext.tsx -->
+    <!-- SYNC: CSP hash is auto-synced by scripts/sync-csp-hash.js (runs on prebuild) -->
+    <script>
+      (function() {
+        var theme;
+        try { theme = localStorage.getItem('app-theme'); } catch(e) { /* Safari private mode */ }
+        if (!theme) {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

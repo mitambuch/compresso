@@ -1,0 +1,113 @@
+{
+  "name": "project-base",
+  "version": "5.0.0",
+  "type": "module",
+  "description": "Private production base — React 19 + TypeScript 5.9 + Vite 7 + Tailwind CSS 4",
+  "author": "Mirco",
+  "license": "UNLICENSED",
+  "private": true,
+  "_baseProject": true,
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "node scripts/sync-csp-hash.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "validate": "pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build",
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "node scripts/setup-bootstrap.js --check",
+    "prepare": "husky",
+    "setup": "node scripts/setup-bootstrap.js",
+    "base:update": "node scripts/setup.js --update",
+    "base:patch": "node scripts/base-patch.js",
+    "release": "node scripts/release.js",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major",
+    "analyze": "ANALYZE=true vite build",
+    "audit:ci": "pnpm audit --prod --audit-level=high",
+    "doctor": "node scripts/doctor.js",
+    "done": "node scripts/done.js"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.575.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.2",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
+    "@clack/prompts": "^1.1.0",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/js": "^9.39.4",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.58.2",
+    "@release-it/conventional-changelog": "^10.0.6",
+    "@tailwindcss/vite": "^4.2.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.1.2",
+    "eslint": "^9.39.4",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "jsdom": "^28.1.0",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "release-it": "^19.2.4",
+    "rollup-plugin-visualizer": "^7.0.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-sitemap": "^0.8.2",
+    "vitest": "^4.1.2",
+    "vitest-axe": "^0.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.css": [
+      "prettier --write"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
+    "overrides": {
+      "minimatch": ">=10.2.1",
+      "rollup": ">=4.58.0",
+      "basic-ftp": ">=5.2.0",
+      "undici": ">=6.24.0",
+      "tmp": ">=0.2.4"
+    }
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.28.0"
+}
