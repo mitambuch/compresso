@@ -29,6 +29,9 @@ export default mergeConfig(
           'src/test/**',
           'src/vite-env.d.ts',
           'src/main.tsx',
+          // WHY: Web Worker + WASM decode/encode needs a real browser environment.
+          // Covered by e2e / manual testing, not jsdom unit tests.
+          'src/features/compressor/worker/**',
         ],
         // WHY: Thresholds ratchet UP only — lock current coverage so it never decreases
         thresholds: {

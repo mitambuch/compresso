@@ -61,6 +61,22 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    // WHY: @jsquash/* ships WASM modules loaded inside a Web Worker — Vite
+    // should not pre-bundle them (breaks the wasm import graph in dev).
+    optimizeDeps: {
+      exclude: [
+        '@jsquash/webp',
+        '@jsquash/avif',
+        '@jsquash/jpeg',
+        '@jsquash/png',
+        '@jsquash/resize',
+      ],
+    },
+
+    worker: {
+      format: 'es',
+    },
+
     build: {
       chunkSizeWarningLimit: 500,
       rollupOptions: {
@@ -71,6 +87,9 @@ export default defineConfig(({ mode }) => {
             }
             if (id.includes('node_modules/react-router')) {
               return 'vendor-router';
+            }
+            if (id.includes('node_modules/jszip')) {
+              return 'vendor-zip';
             }
           },
         },
