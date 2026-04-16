@@ -15,7 +15,8 @@ export const siteConfig = {
 
   // ─── SEO defaults ──────────────────────────────────────────
   title: env.APP_NAME,
-  description: '', // Set per-project description here
+  description:
+    'Compress JPEG, PNG, WebP and AVIF images right in your browser. Private by design — no upload, no server.',
   ogImage: '', // Add your OG image to public/images/ and update this path
 
   // ─── Contact ───────────────────────────────────────────────

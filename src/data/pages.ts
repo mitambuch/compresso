@@ -5,9 +5,10 @@
 
 export const homePage = {
   seo: {},
-  tagline: 'v5.0 — production ready',
-  headline: 'Build something great.',
-  subline: "Clean slate, zero bloat. Everything you need, nothing you don't.\nLet's go.",
+  tagline: 'batch image compressor',
+  headline: 'Squeeze your images, keep the detail.',
+  subline:
+    'Drop JPEG, PNG, WebP or AVIF files — they are decoded, re-encoded and compared\nentirely in your browser. Nothing ever leaves your machine.',
 };
 
 export const labPage = {

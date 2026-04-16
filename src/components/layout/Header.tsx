@@ -3,14 +3,14 @@ import { siteConfig } from '@config/site';
 import { ROUTES } from '@constants/routes';
 import { cn } from '@utils/cn';
 import type { LucideIcon } from 'lucide-react';
-import { Blocks, FlaskConical, House } from 'lucide-react';
+import { Blocks, FlaskConical, ImageDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 /* ─── Navigation items — edit this array to add/remove links ── */
 
 const NAV_ITEMS: { to: string; label: string; icon: LucideIcon }[] = [
-  { to: ROUTES.HOME, label: 'Home', icon: House },
+  { to: ROUTES.HOME, label: 'Compress', icon: ImageDown },
   { to: ROUTES.PLAYGROUND, label: 'Playground', icon: Blocks },
   { to: ROUTES.LAB, label: 'Lab', icon: FlaskConical },
 ];
