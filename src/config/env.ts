@@ -14,7 +14,7 @@ if (import.meta.env.PROD && !import.meta.env.VITE_APP_URL) {
 
 export const env = {
   CLOUDINARY_CLOUD_NAME: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '',
-  APP_NAME: import.meta.env.VITE_APP_NAME || 'Project',
+  APP_NAME: import.meta.env.VITE_APP_NAME || 'compresso',
   APP_URL: import.meta.env.VITE_APP_URL || 'http://localhost:5173',
   IS_DEV: import.meta.env.DEV,
   IS_PROD: import.meta.env.PROD,
