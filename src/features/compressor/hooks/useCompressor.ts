@@ -3,7 +3,8 @@
 //
 // Holds the queue of images, the current format/quality options, and
 // dispatches compression jobs to the Web Worker. Re-compresses affected
-// items whenever options change.
+// items whenever options change. Uses a concurrency-bounded queue so
+// dropping 50 files doesn't load 50 ArrayBuffers into memory at once.
 // ═══════════════════════════════════════════════════
 
 import { useCallback, useEffect, useReducer, useRef } from 'react';
@@ -17,6 +18,9 @@ import type {
   OutputFormat,
 } from '../types';
 import { compressInWorker } from '../worker/client';
+
+/** Max number of files read + sent to the worker concurrently. */
+const MAX_CONCURRENT = 2;
 
 interface State {
   items: ImageItem[];
@@ -105,6 +109,7 @@ export interface UseCompressorResult {
     ratio: number;
     ready: number;
     pending: number;
+    progress: number;
   };
 }
 
@@ -113,11 +118,18 @@ export function useCompressor(): UseCompressorResult {
   const optionsRef = useRef(state.options);
   optionsRef.current = state.options;
 
-  // Track the latest job per item so that fast option changes cancel out
-  // the results from stale jobs.
-  const latestJobId = useRef(new Map<string, string>());
+  // Files waiting for a free slot. We read their buffer only when picked
+  // to avoid loading 50 files into RAM at once.
+  const pendingQueue = useRef<ImageItem[]>([]);
+  const activeCount = useRef(0);
 
-  const compressItem = useCallback(async (item: ImageItem) => {
+  // When options change, stale jobs must be dropped. Comparing to this ref
+  // means: "is the item currently expected at these options?"
+  const latestJobId = useRef(new Map<string, string>());
+  // Items removed or cleared are skipped when they reach the head of the queue.
+  const cancelledIds = useRef(new Set<string>());
+
+  const runOne = useCallback(async (item: ImageItem) => {
     const jobId = crypto.randomUUID();
     latestJobId.current.set(item.id, jobId);
 
@@ -128,7 +140,7 @@ export function useCompressor(): UseCompressorResult {
       const buffer = await item.file.arrayBuffer();
       const result = await compressInWorker(buffer, item.mimeType, format, quality);
 
-      if (latestJobId.current.get(item.id) !== jobId) return; // superseded
+      if (latestJobId.current.get(item.id) !== jobId) return;
 
       const definition = getFormat(format);
       const blob = new Blob([result.buffer], { type: definition.mime });
@@ -155,6 +167,28 @@ export function useCompressor(): UseCompressorResult {
     }
   }, []);
 
+  const drain = useCallback(() => {
+    while (activeCount.current < MAX_CONCURRENT) {
+      const next = pendingQueue.current.shift();
+      if (!next) return;
+      if (cancelledIds.current.has(next.id)) continue;
+
+      activeCount.current += 1;
+      void runOne(next).finally(() => {
+        activeCount.current -= 1;
+        drain();
+      });
+    }
+  }, [runOne]);
+
+  const enqueue = useCallback(
+    (items: ImageItem[]) => {
+      pendingQueue.current.push(...items);
+      drain();
+    },
+    [drain],
+  );
+
   const addFiles = useCallback(
     (files: FileList | File[]) => {
       const list = Array.from(files).filter(file => file.type.startsWith('image/'));
@@ -170,20 +204,21 @@ export function useCompressor(): UseCompressorResult {
       }));
 
       dispatch({ type: 'add', items: newItems });
-      newItems.forEach(item => {
-        void compressItem(item);
-      });
+      enqueue(newItems);
     },
-    [compressItem],
+    [enqueue],
   );
 
   const removeItem = useCallback((id: string) => {
     latestJobId.current.delete(id);
+    cancelledIds.current.add(id);
     dispatch({ type: 'remove', id });
   }, []);
 
   const clearAll = useCallback(() => {
     latestJobId.current.clear();
+    for (const item of pendingQueue.current) cancelledIds.current.add(item.id);
+    pendingQueue.current = [];
     dispatch({ type: 'clear' });
   }, []);
 
@@ -203,20 +238,17 @@ export function useCompressor(): UseCompressorResult {
     if (previous.format === state.options.format && previous.quality === state.options.quality) {
       return;
     }
-    state.items.forEach(item => {
-      void compressItem(item);
-    });
+    enqueue(state.items);
     // WHY: intentionally omit `state.items` — option changes drive the re-run,
     // not every queue mutation (which already triggers its own compress).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.options.format, state.options.quality, compressItem]);
+  }, [state.options.format, state.options.quality, enqueue]);
 
   // Clean up all object URLs on unmount.
   useEffect(() => {
     return () => {
       state.items.forEach(revokeItemUrls);
     };
-    // Run cleanup only on unmount; `state.items` is read via closure.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -252,6 +284,7 @@ function computeTotals(items: ImageItem[]): UseCompressorResult['totals'] {
 
   const savedBytes = originalBytes - compressedBytes;
   const ratio = originalBytes > 0 ? compressedBytes / originalBytes : 1;
+  const progress = items.length > 0 ? ready / items.length : 0;
 
   return {
     count: items.length,
@@ -261,5 +294,6 @@ function computeTotals(items: ImageItem[]): UseCompressorResult['totals'] {
     ratio,
     ready,
     pending,
+    progress,
   };
 }
